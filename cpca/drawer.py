@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import ad_2_addr_dict
+from . import CPCA
 from . import _fill_adcode
 from collections import defaultdict
 import itertools
@@ -7,7 +7,8 @@ import operator
 
 
 def ad2addr(part_adcode):
-    return ad_2_addr_dict[_fill_adcode(part_adcode)]
+    cpca_parser = CPCA()
+    return cpca_parser.ad_map[_fill_adcode(part_adcode)]
 
 
 def _base_input_check(locations):

@@ -28,6 +28,7 @@ def assert_addr(addr_df: pd.DataFrame, pos_sensitive=False):
 
 
 def test_transform():
+    cpca_parser = cpca.CPCA()
     addr_list = ["徐汇区虹漕路461号58号楼5楼", "泉州市洛江区万安塘西工业区", "福建省鼓楼区鼓楼医院",
                  "天津市",
                  "我家的地址是江苏淮安清江浦区人民路111号",
@@ -38,40 +39,42 @@ def test_transform():
                  "淮安市市辖区",
                  # 测试错误数据
                  32323]
-    transed = cpca.transform(addr_list)
+    transed = cpca_parser.transform(addr_list)
     assert_addr(transed)
 
     # 测试pos_sensitive
-    transed = cpca.transform(addr_list, pos_sensitive=True)
+    transed = cpca_parser.transform(addr_list, pos_sensitive=True)
     assert_addr(transed, pos_sensitive=True)
 
 
 def test_umap():
+    cpca_parser = cpca.CPCA()
     addrs = ["朝阳区汉庭酒店大山子店", "吉林省朝阳区不知道店"]
-    transed = cpca.transform(addrs, umap={"朝阳区": "110105"})
+    transed = cpca_parser.transform(addrs, umap={"朝阳区": "110105"})
     _assert_line(transed, False, 0, "北京市", "市辖区", "朝阳区", "汉庭酒店大山子店", "110105", -1, -1, 0)
     _assert_line(transed, False, 1, "吉林省", "长春市", "朝阳区", "不知道店", "220104", 0, -1, 3)
 
 
 def test_transform_text_with_addrs():
+    cpca_parser = cpca.CPCA()
     addrs_text = "你家在吉林省朝阳区，而我家在北京市朝阳区，太远了"
-    addr_df = cpca.transform_text_with_addrs(addrs_text, pos_sensitive=True)
+    addr_df = cpca_parser.transform_text_with_addrs(addrs_text, pos_sensitive=True)
     _assert_line(addr_df, True, 0, "吉林省", "长春市", "朝阳区", "", "220104", 3, -1, 6)
     _assert_line(addr_df, True, 1, "北京市", "市辖区", "朝阳区", "", "110105", 14, -1, 17)
 
     addrs_text = "吉林省北京市鼓楼区"
-    addr_df = cpca.transform_text_with_addrs(addrs_text, pos_sensitive=True, umap={"鼓楼区": "320106"})
+    addr_df = cpca_parser.transform_text_with_addrs(addrs_text, pos_sensitive=True, umap={"鼓楼区": "320106"})
     _assert_line(addr_df, True, 0, "吉林省", None, None, "", "220000", 0, -1, -1)
     _assert_line(addr_df, True, 1, "北京市", None, None, "", "110000", 3, -1, -1)
     _assert_line(addr_df, True, 2, "江苏省", "南京市", "鼓楼区", "", "320106", -1, -1, 6)
 
     addrs_text = "天津市"
-    addr_df = cpca.transform_text_with_addrs(addrs_text, pos_sensitive=True)
+    addr_df = cpca_parser.transform_text_with_addrs(addrs_text, pos_sensitive=True)
     _assert_line(addr_df, True, 0, "天津市", None, None, "", "120000", 0, -1, -1)
     assert len(addr_df) == 1
 
     addrs_text = "分店位于徐汇区虹漕路461号58号楼5楼和泉州市洛江区万安塘西工业区以及南京鼓楼区"
-    addr_df = cpca.transform_text_with_addrs(addrs_text, pos_sensitive=True)
+    addr_df = cpca_parser.transform_text_with_addrs(addrs_text, pos_sensitive=True)
     assert len(addr_df) == 3
     _assert_line(addr_df, True, 0, "上海市", "市辖区", "徐汇区", "", "310104", -1, -1, 4)
     _assert_line(addr_df, True, 1, "福建省", "泉州市", "洛江区", "", "350504", -1, 21, 24)

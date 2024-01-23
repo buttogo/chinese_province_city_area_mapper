@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 origin_addr = pd.read_csv(os.path.join(os.path.dirname(__file__), 'addr.csv'))
-df = cpca.transform(origin_addr['原始地址'])
+df = cpca.CPCA().transform(origin_addr['原始地址'])
 
 
 def test_draw_locations():
